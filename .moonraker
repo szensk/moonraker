@@ -1,8 +1,3 @@
-Description
-===========
-Moonraker is a simple build system I use to define common tasks (such as packaging a .love file).
-
-```moonscript
 default "echo"
 
 desc "Find moon's path"
@@ -17,9 +12,3 @@ task dir: "test", =>
 desc "Echo some useless information"
 task echo: {"test", "dir"}, =>
   echo "doing echo"
-```
-
-Usage
-==================
-
-Simply call moonraker. Without any arguments it will call the default task from the .moonraker file. The first argument is an optional file, the second is the task to run.
