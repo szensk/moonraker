@@ -1,8 +1,7 @@
 -- moonraker
--- simple build system, so simple you probably shouldn't use it
+-- simple build system. so simple you probably shouldn't use it
 -- look at example .moonraker
--- unfortunately to do anything you'll need luafilesystem
-
+-- to do anything sufficiently useful you'll need luafilesystem
 moonscript = require "moonscript"
 
 tasks = {} -- each task
@@ -39,16 +38,15 @@ environment =
 
 -- transforms unknown access to os execution
 setmetatable environment, __index: (t, k) ->
-  if rawget(t, k) or _G[k]
-    rawget(t, k) or _G[k]
-  else
-    (x) =>
-      os.execute("#{k} #{x or @} > #{tmpname}")
-      result = [l for l in io.lines(tmpname)]
-      table.concat(result, "\n")
+  (x) =>
+    os.execute("#{k} #{x or @} > #{tmpname}")
+    result = [l for l in io.lines(tmpname)]
+    table.concat(result, "\n")
 
 doTask = (name) ->
   return if not multi[name] and done[name] -- task already executed
+  unless tasks[name]
+    return print("No task: " .. name)
   task = tasks[name]
   if requires[name]
     if type(requires[name]) == "table"
@@ -63,25 +61,29 @@ doTask = (name) ->
   else
     print "Error in task: #{name}\n #{res}"
 
-help = [[ Usage: moonraker file (default: .moonraker) task (optional)]]
+help = "\tUsage: moonraker file (default: .moonraker) task (optional)"
 
 doFile = ->
+  start = os.clock()
   filepath = arg[2] and arg[1] or ".moonraker"
-  if filepath\match("%-h.*")
+  if filepath\match("%-h.*") --anything matching -h* must be a request for help
     print help
     return
   mrfile = table.concat([l for l in io.lines(filepath)], "\n")
-  --try to compile moonraker
+  --try to load moonraker
   mrfunc = assert(moonscript.loadstring(mrfile))
   setfenv(mrfunc, environment)
   safe, errors = pcall(mrfunc)
+  task = arg[1] and arg[2] or arg[1] or default
   if safe
-    doTask(arg[1] and arg[2] or arg[1] or default)
+    doTask(task)
   --always remove the temporary file
   os.remove(tmpname)
   -- print errors in moonraker file
   if errors
     print errors
+  elapsed = os.clock() - start
+  print(("Completed %s in %0.2fs.")\format(task, elapsed))
 
 --public
-{ main: -> doFile! }
+{ main: doFile }
