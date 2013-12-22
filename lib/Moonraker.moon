@@ -25,7 +25,7 @@ environment =
       tasks[k] = v if type(v) == "function"
       descs[k] = nextdesc -- set our description
 
-    tasks[name] = block if block
+    tasks[name] = type(block) == "table" and block.do or block if block
     multi[name] = nextmulti if nextmulti
     nextdesc, nextmulti = nil, nil
   desc: (name) ->
@@ -33,15 +33,16 @@ environment =
   multiple: ->
     nextmulti = true
   default: (name) ->
-    assert(not default, "Already set default task: #{default}")
+    print("Already set default task: #{default}") if default
     default = name
 
 -- transforms unknown access to os execution
 setmetatable environment, __index: (t, k) ->
+  return _G[k] if _G[k]
   (x) =>
-    os.execute("#{k} #{x or @} > #{tmpname}")
+    returncode = os.execute("#{k} #{x or @} > #{tmpname}")
     result = [l for l in io.lines(tmpname)]
-    table.concat(result, "\n")
+    table.concat(result, "\n"), returncode
 
 doTask = (name) ->
   return if not multi[name] and done[name] -- task already executed
@@ -51,7 +52,7 @@ doTask = (name) ->
   if requires[name]
     if type(requires[name]) == "table"
       for item in *requires[name]
-        doTask(item) if type(item) == "string"
+        doTask(item)
     else
       doTask(requires[name])
   safe, res = pcall(task, environment)
@@ -63,9 +64,9 @@ doTask = (name) ->
 
 help = "\tUsage: moonraker file (default: .moonraker) task (optional)"
 
-doFile = ->
+doFile = (file) ->
   start = os.clock()
-  filepath = arg[2] and arg[1] or ".moonraker"
+  filepath = file or arg[2] and arg[1] or ".moonraker"
   if filepath\match("%-h.*") --anything matching -h* must be a request for help
     print help
     return
@@ -86,4 +87,4 @@ doFile = ->
   print(("Completed %s in %0.2fs.")\format(task, elapsed))
 
 --public
-{ main: doFile }
+doFile

@@ -6,7 +6,8 @@ task test: =>
 
 desc "List some stuff"
 task dir: "test", =>
-  cd = echo "%CD%" -- calls to any unknown global will call to your operating system and return the value as a string
+  cd, status = echo "%CD%" -- calls to any unknown global will call to your operating system and return the value as a string and the status code
+  print "Status: #{status}"
   "PWD: " .. cd
 
 desc "Echo some useless information"
