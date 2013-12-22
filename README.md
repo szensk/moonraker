@@ -5,13 +5,15 @@ Moonraker is a simple build system I use to define common tasks (such as packagi
 ```moonscript
 default "echo"
 
+where = windows! and where or which
+
 desc "Find moon's path"
 task test: =>
   "MOON_PATH: " .. where "moon" -- results returned from a task are printed to screen
 
 desc "List some stuff"
 task dir: "test", =>
-  cd = echo "%CD%" -- calls to any unknown global will call to your operating system and return the value as a string
+  cd, status = echo "%CD%" -- calls to any unknown global will os.execute and return the result (string) and status code (number)
   "PWD: " .. cd
 
 desc "Echo some useless information"

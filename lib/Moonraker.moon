@@ -35,6 +35,9 @@ environment =
   default: (name) ->
     print("Already set default task: #{default}") if default
     default = name
+  windows: ->
+    package.config\sub(1,1) == "\\"
+
 
 -- transforms unknown access to os execution
 setmetatable environment, __index: (t, k) ->
