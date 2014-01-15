@@ -1,2 +1,3 @@
 @echo off
-moon moonraker %*
+set scriptpath=%~d0%~p0
+moon %scriptpath%\moonraker %*
