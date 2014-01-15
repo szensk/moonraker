@@ -38,7 +38,6 @@ environment =
   windows: ->
     package.config\sub(1,1) == "\\"
 
-
 -- transforms unknown access to os execution
 setmetatable environment, __index: (t, k) ->
   return _G[k] if _G[k]
@@ -58,10 +57,13 @@ doTask = (name) ->
         doTask(item)
     else
       doTask(requires[name])
+  start = os.clock()
   safe, res = pcall(task, environment)
   if safe
     print res if res
     done[name] = true
+    elapsed = os.clock() - start
+    print(("Completed %s in %0.2fs.")\format(name, elapsed))
   else
     print "Error in task: #{name}\n #{res}"
 
@@ -87,7 +89,7 @@ doFile = (file) ->
   if errors
     print errors
   elapsed = os.clock() - start
-  print(("Completed %s in %0.2fs.")\format(task, elapsed))
+  print(("Completed all tasks in %0.2fs.")\format(elapsed))
 
 --public
 doFile
