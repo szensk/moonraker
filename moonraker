@@ -1,6 +1,5 @@
 #!/usr/bin/moon
 
 local Moonraker
-package.moonpath = package.moonpath .. ";./lib/?.moon"
 Moonraker = require 'Moonraker'
 Moonraker()

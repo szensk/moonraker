@@ -13,6 +13,7 @@ requires = {} -- each task's required tasks
 default   = nil -- default task
 nextdesc  = nil -- description to assign to next defined task
 nextmulti = nil -- whether the next defined task is able to execute multiple times
+separator = package.config\sub(0, 1) -- path separator
 tmpname = os.tmpname! -- temporary file for output
 
 -- functions available to moonraker
@@ -37,6 +38,7 @@ environment =
     default = name
   windows: ->
     package.config\sub(1,1) == "\\"
+  :separator
 
 -- transforms unknown access to os execution
 setmetatable environment, __index: (t, k) ->
@@ -83,7 +85,7 @@ doFile = (file) ->
   if safe
     doTask(task)
   --always remove the temporary file
-  os.remove(tmpname)
+  os.remove(tmpname) -- needs to be an admin prompt
   -- print errors in moonraker file
   if errors
     print errors
