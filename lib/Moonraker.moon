@@ -60,7 +60,6 @@ doTask = (name) ->
   start = os.clock()
   safe, res = pcall(task, environment)
   if safe
-    print res if res
     done[name] = true
     elapsed = os.clock() - start
     print(("Completed %s in %0.2fs.")\format(name, elapsed))
