@@ -1,10 +1,11 @@
 default "echo"
 
 where = windows! and where or which
+moonpath = nil
 
 desc "Find moon's path"
 task test: =>
-  "MOON_PATH: " .. where "moon" -- results returned from a task are printed to screen
+  moonpath = where "moon"
 
 desc "List some stuff"
 task dir: "test", =>

@@ -13,7 +13,7 @@ requires = {} -- each task's required tasks
 default   = nil -- default task
 nextdesc  = nil -- description to assign to next defined task
 nextmulti = nil -- whether the next defined task is able to execute multiple times
-separator = package.config\sub(0, 1) -- path separator
+separator = package.config\sub(0, 1)
 tmpname = os.tmpname! -- temporary file for output
 
 -- functions available to moonraker
@@ -29,15 +29,21 @@ environment =
     tasks[name] = type(block) == "table" and block.do or block if block
     multi[name] = nextmulti if nextmulti
     nextdesc, nextmulti = nil, nil
+
   desc: (name) ->
     nextdesc = name
+
   multiple: ->
     nextmulti = true
+
   default: (name) ->
     print("Already set default task: #{default}") if default
     default = name
+
   windows: ->
     package.config\sub(1,1) == "\\"
+
+  exec: os.execute
   :separator
 
 -- transforms unknown access to os execution
@@ -68,24 +74,30 @@ doTask = (name) ->
   else
     print "Error in task: #{name}\n #{res}"
 
-help = "\tUsage: moonraker file (default: .moonraker) task (optional)"
+help = "\tUsage: moonraker tasks... (optional)"
 
 doFile = (file) ->
   start = os.clock()
-  filepath = file or arg[2] and arg[1] or ".moonraker"
-  if filepath\match("%-h.*") --anything matching -h* must be a request for help
+  filepath = file or ".moonraker"
+  if arg[1] and arg[1]\match("%-h.*") --anything matching -h* must be a request for help
     print help
     return
   mrfile = table.concat([l for l in io.lines(filepath)], "\n")
+
   --try to load moonraker
   mrfunc = assert(moonscript.loadstring(mrfile))
   setfenv(mrfunc, environment)
   safe, errors = pcall(mrfunc)
-  task = arg[1] and arg[2] or arg[1] or default
+  task = arg[1] or default
   if safe
-    doTask(task)
+    i = 1
+    while task do
+      doTask(task)
+      i += 1
+      task = arg[i]
   --always remove the temporary file
   os.remove(tmpname) -- needs to be an admin prompt
+
   -- print errors in moonraker file
   if errors
     print errors
