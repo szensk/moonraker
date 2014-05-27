@@ -82,6 +82,9 @@ doFile = (file) ->
   if arg[1] and arg[1]\match("%-h.*") --anything matching -h* must be a request for help
     print help
     return
+  if not io.open(filepath, "r")
+    print "Unable to open: #{filepath}"
+    os.exit(1)
   mrfile = table.concat([l for l in io.lines(filepath)], "\n")
 
   --try to load moonraker

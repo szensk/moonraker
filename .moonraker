@@ -6,6 +6,7 @@ moonpath = nil
 desc "Find moon's path"
 task test: =>
   moonpath = where "moon"
+  print moonpath
 
 desc "List some stuff"
 task dir: "test", =>

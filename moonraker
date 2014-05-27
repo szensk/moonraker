@@ -1,5 +1,5 @@
-#!/usr/bin/moon
+#!/usr/local/bin/moon
 
 local Moonraker
-Moonraker = require 'Moonraker'
+Moonraker = require 'moonraker'
 Moonraker()
